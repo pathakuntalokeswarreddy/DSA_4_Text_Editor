@@ -55,7 +55,7 @@ void pushStack(DynArrStk *stack,const char *opr,const char *text,int line,int po
         if (stack->actions[stack->size].text == NULL)
         {
             free(stack->actions[stack->size].opr);
-            stack->actions[stack->size].opr == NULL;
+            stack->actions[stack->size].opr = NULL;
             return;
         }
         strcpy(stack->actions[stack->size].text, text);

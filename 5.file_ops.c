@@ -21,16 +21,31 @@ int openFile(TxtEdtr *editor, const char *fname)
         return 0;
     }
 
-    /* Clearing data from present editor and resetting editor initial values*/
+    /* Clearing data from present editor and resetting editor with initial values*/
     closeFile(editor);
 
     /* Copying data from Newly opened File to New Editor */
     char buffer[MAX_LINE_LENGTH];
-    while (fgets(buffer,sizeof(buffer),file) != NULL)
+    char ch;
+    int i=0;
+    while (fread(&ch,1,1,file))
     {
-        buffer[strcspn(buffer, "\n")] = '\0';
-        appendLine(editor, buffer);
+        if(ch == '\r')
+            fread(&ch,1,1,file);
+
+        if(ch == '\n')
+        {
+            buffer[i]='\0';
+            appendLine(editor, buffer);
+
+            memset(buffer,0,i);
+            i=0;
+        }
+        else
+            buffer[i++] = ch; 
     }
+    buffer[i]='\0';
+    appendLine(editor, buffer);
 
     /* Closing File, content already copied */
     fclose(file);

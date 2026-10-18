@@ -62,6 +62,15 @@ void redo(TxtEdtr *editor, DynArrStk *undoStack, DynArrStk *redoStack)
             deleteLine(editor);
     }
 
+    else if (strcmp(action.opr, "cut") == 0)
+    {
+        deleteLine(editor);
+    }
+    else if (strcmp(action.opr, "paste") == 0)
+    {
+        deleteCharacters(editor, strlen(action.text));
+    }
+
     
 
     pushStack(undoStack,action.opr, action.text,action.cline, action.cpos);

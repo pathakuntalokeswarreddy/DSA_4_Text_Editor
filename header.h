@@ -44,7 +44,7 @@ void freeEditor(TxtEdtr *editor);
 
 Node *createNode(const char *text);
 void appendLine(TxtEdtr *editor, const char *text);
-void appendDeletedLine(TxtEdtr *editor, const char *text);
+void appendDeletedLine(TxtEdtr *editor, const char *text, int target_line);
 void insertText(TxtEdtr *editor, const char *text);
 void deleteCharacters(TxtEdtr *editor, int count);
 void deleteLine(TxtEdtr *editor);

@@ -26,10 +26,10 @@ void displayText(TxtEdtr *editr)
     while (crnt != NULL)
     {
         if(crnt->txt != NULL)
-            printf("Line %d: %s\n", line, crnt->txt);
+            printf("Line %d: %s\n", line, crnt->txt);   
         else
             printf("Line %d: \n", line);
-
+        fflush(stdout);
         crnt = crnt->nxt;
         line++;
     }

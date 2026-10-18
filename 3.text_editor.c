@@ -5,6 +5,7 @@ Functions in this file:
     void handleCommand(TxtEdtr *editor, DynArrStk *undoStack, DynArrStk *redoStack, char *command);
     void printMenu(void);
 */
+extern char *clipboard;
 
 void handleCommand(TxtEdtr *editor, DynArrStk *undoStack, DynArrStk *redoStack, char *command)
 {
@@ -104,6 +105,7 @@ void handleCommand(TxtEdtr *editor, DynArrStk *undoStack, DynArrStk *redoStack, 
     /* delete current line command */ 
     else if (strcmp(token, "delete_line") == 0)
     {
+        
         /* If Editor is empty or if cursor is pointing to invalid node, then we do not attempt deleting */
         if (editor == NULL || editor->cursor == NULL)
         {
@@ -112,8 +114,9 @@ void handleCommand(TxtEdtr *editor, DynArrStk *undoStack, DynArrStk *redoStack, 
         }
 
         /* Validating whether current line consists any characters or not */        
-        if (editor->cpos > 0)
+        if (strlen(editor->cursor->txt) > 0)
         {
+            printf("pointing: %s\n",editor->cursor->txt);
             int line_length = strlen(editor->cursor->txt);
 
             char *deleted = malloc((size_t)line_length + 1);
@@ -126,12 +129,12 @@ void handleCommand(TxtEdtr *editor, DynArrStk *undoStack, DynArrStk *redoStack, 
             memcpy(deleted,editor->cursor->txt, (size_t)line_length);
             deleted[line_length] = '\0';
 
-            int line_number = editor->cline;
+            
+            pushStack(undoStack, "delete_line", deleted, editor->cline, 0);
+            printf("%s\n",deleted);
+            printf("%d\n",editor->cline);
 
             deleteLine(editor);
-            pushStack(undoStack, "delete_line", deleted, line_number, 0);
-
-            printf(" S T Undo: %s %d\n",deleted, line_number);
             clearStack(redoStack);
             free(deleted);
         }
@@ -140,7 +143,7 @@ void handleCommand(TxtEdtr *editor, DynArrStk *undoStack, DynArrStk *redoStack, 
             int line = editor->cline;
             deleteLine(editor);
             pushStack(undoStack, "delete_line", NULL, line, 0);
-            printf(" S T Undo: NULL %d\n",line);
+            // printf("to undo: NULL\n");
             clearStack(redoStack);
         }
     }
@@ -207,10 +210,20 @@ void handleCommand(TxtEdtr *editor, DynArrStk *undoStack, DynArrStk *redoStack, 
     }
 
 
+    else if (strcmp(token, "cut") == 0)      
+    {    
+        pushStack(undoStack, "cut", editor->cursor->txt, editor->cline, editor->cpos);
+        cutText(editor);
+        clearStack(redoStack);  
+    }
+    else if (strcmp(token, "paste") == 0)    
+    { 
+        pushStack(undoStack, "paste", clipboard, editor->cline, editor->cpos);
+        pasteText(editor); 
+        clearStack(redoStack);  
+    }
     else if (strcmp(token, "copy") == 0)     { copyText(editor);  }
-    else if (strcmp(token, "cut") == 0)      { cutText(editor);   clearStack(redoStack);  }
-    else if (strcmp(token, "paste") == 0)    { pasteText(editor); clearStack(redoStack);  }
-
+    
     else if (strcmp(token, "undo") == 0)     { undo(editor, undoStack, redoStack);  }
     else if (strcmp(token, "redo") == 0)     { redo(editor, undoStack, redoStack);  }
     

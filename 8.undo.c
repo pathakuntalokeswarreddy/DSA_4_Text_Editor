@@ -19,7 +19,9 @@ void undo(TxtEdtr *editor,DynArrStk *undoStack,DynArrStk *redoStack)
         printf("Error: Nothing to undo.\n");
         return;
     }
+    
     printf("last action from stack:%s\n",action.opr);
+
     if (strcmp(action.opr, "insert") == 0)
     {
         removeInsertedTextAt(editor,action.cline,action.cpos,action.text);
@@ -76,13 +78,26 @@ void undo(TxtEdtr *editor,DynArrStk *undoStack,DynArrStk *redoStack)
         }
         else
         {
-            int LineNumber = (action.cline==1) ? 1 : action.cline ;
-
-            if (!setCursor(editor, LineNumber,action.cpos))            
+            if (!setCursor(editor, action.cline,action.cpos))            
                 return;
             
-            appendDeletedLine(editor, action.text);
+            appendDeletedLine(editor, action.text, action.cline);
         }
+    }
+
+    else if (strcmp(action.opr, "cut") == 0)
+    {
+        if (!setCursor(editor, action.cline,action.cpos))            
+            return;
+        
+        appendDeletedLine(editor, action.text,action.cline);
+    }
+    else if (strcmp(action.opr, "paste") == 0)
+    {
+        // if (!setCursor(editor, action.cline,editor->cpos))            
+        //     return;
+        
+        deleteCharacters(editor, strlen(action.text));
     }
     
     pushStack(redoStack, action.opr, action.text,action.cline, action.cpos);
@@ -138,16 +153,14 @@ Node *getLineNode(TxtEdtr *editor, int lineNumber)
 
 
 int setCursor(TxtEdtr *editor, int line, int pos)
-{    
+{   
+    /* If editor is empty, new line will be inserted by appendLine() later */
     if(editor->cursor == NULL)
         return 1;
 
-    /* If cursor is at currect position */
+    /* If cursor is at currect position, no need of finding node again */
     if( line == editor->cline+1 )
-    {
-        editor->cline=0;
         return 1;
-    }
 
     Node *node = getLineNode(editor, line);
     if (node == NULL)

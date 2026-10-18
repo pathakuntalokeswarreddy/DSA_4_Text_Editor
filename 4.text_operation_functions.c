@@ -17,7 +17,7 @@ Functions in this file:
 */
 
 
-static char *clipboard = NULL;
+char *clipboard = NULL;
 
 void insertText(TxtEdtr *editor, const char *text)
 {
@@ -100,7 +100,7 @@ void appendLine(TxtEdtr *editor, const char *text)
 }
 
 
-void appendDeletedLine(TxtEdtr *editor, const char *text)
+void appendDeletedLine(TxtEdtr *editor, const char *text, int target_line)
 {
     if (editor == NULL)
         return;
@@ -127,10 +127,11 @@ void appendDeletedLine(TxtEdtr *editor, const char *text)
         return;
     }
 
-    /*  If Line should be created at Line1 place  */
-    if( editor->cline == 1 )
+    /*  case 1: If Line should be created at Line1 place     
+                Inserting back (deleted or cut) Line at Line1 */
+    if( editor->cline == 1 && target_line == 1 )
     {
-
+        printf("case 1\n");
         editor->head = newNode;
         newNode->prv = NULL;
 
@@ -141,9 +142,11 @@ void appendDeletedLine(TxtEdtr *editor, const char *text)
         return;
     }
 
-    /*  If Line should be created at Line2 place  */
-    if( editor->cline == 0 )
+    /* case 2: Cursor will be in previous line 
+               And new node should be inserted after current pointing line */
+    if( target_line == editor->cline+1 )
     {
+        printf("case 2\n");
         if( editor->cursor->nxt != NULL )
             editor->cursor->nxt->prv = newNode;
         else
@@ -155,18 +158,23 @@ void appendDeletedLine(TxtEdtr *editor, const char *text)
         
         newNode->prv = editor->cursor;
 
-        editor->cline=2;
+        editor->cursor = newNode;
+        editor->cline++;
+
         editor->cpos = (int)strlen(newNode->txt);
         return;
     }
 
+    /* case 3: Cursor will be in currect position 
+               And new node should be inserted at current pointing line  */
+    
     newNode->nxt = editor->cursor;
     newNode->prv = editor->cursor->prv;
     
     editor->cursor->prv->nxt = newNode;
     editor->cursor->prv = newNode;
-     
-    editor->cline++;
+    editor->cursor = newNode;
+
     editor->cpos = (int)strlen(text);
     printf("Line inserted successfully.\n");
 }
@@ -313,11 +321,12 @@ void pasteText(TxtEdtr *editor)
     if (editor == NULL)
         return;
     
-    if (clipboard == NULL){
+    if (clipboard == NULL)
+    {
         printf("Clipboard is empty.\n");
         return;
     }
-
     insertText(editor, clipboard);
+
     printf("Text pasted successfully.\n");
 }

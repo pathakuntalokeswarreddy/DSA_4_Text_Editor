@@ -147,7 +147,6 @@ This project provides practical experience with:
 
 Possible extensions include:
 
-- Add a Makefile to simplify compilation
 - Improve input validation and error handling
 - Add automated tests for editing and history operations
 - Support more advanced search and replace options

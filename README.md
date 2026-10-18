@@ -1,4 +1,4 @@
-# Text Editor in C
+# Text Editor in C using DSA 
 
 A command-line text editor developed in **C** to explore the practical use of data structures, dynamic memory allocation, file handling, and modular programming.
 
